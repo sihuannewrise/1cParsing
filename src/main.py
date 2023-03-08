@@ -8,7 +8,7 @@ CWD = os.getcwd()
 SOURCE_DIR = './files/in/'
 DESTIN_DIR = './files/out/'
 
-SOURCE_FILE_NAME = 'Карточка счета 51 за 2022 г.xlsx'
+SOURCE_FILE_NAME = 'Account51for2022.xlsx'
 
 DESTIN_FILE_SUFFIX = ' - out'
 DESTIN_SHEET_NAME = 'proc'
@@ -18,7 +18,7 @@ PERIOD, VAT, DATA, four, five, six, AMOUNT = range(7)
 
 
 def avd(key, val, dict):
-    if key in dict:
+    if key in dict and val not in dict[key]:
         dict[key] += val
     else:
         dict.update({key: val})
@@ -33,7 +33,7 @@ def collect_vocabulary(filename):
     contract = {}
     ca = {}
 
-    for row in ws.iter_rows(min_row=2, max_row=2, values_only=True):
+    for row in ws.iter_rows(min_row=2, max_row=3, values_only=True):
         current_date = datetime.strptime(row[PERIOD], '%d.%m.%Y').date()
         year, current_month = current_date.strftime('%Y'), current_date.strftime('%m')
         _, current_ca, current_contract, *_ = row[DATA].split('\n')
