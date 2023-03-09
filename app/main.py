@@ -1,5 +1,6 @@
 import os
 import json
+import pandas as pd
 
 # from datetime import datetime
 from openpyxl import load_workbook
@@ -39,7 +40,7 @@ def create_dict(filename):
         _, current_ca, current_contract, *_ = row[DATA].split('\n')
         current_sum = int(row[AMOUNT])
 
-        # по годам
+        # с разбивкой по годам
         if current_contract not in expenses[current_ca]:
             expenses[current_ca][current_contract] = current_sum
         else:
@@ -55,6 +56,18 @@ def create_dict(filename):
     return expenses
 
 
-dict = create_dict(file)
-with open("files/expenses.json", "w", encoding='UTF-8') as outfile:
-    json.dump(dict, outfile, ensure_ascii=False)
+def write_dict_to_json(data):
+    with open("files/expenses.json", "w", encoding='UTF-8') as outfile:
+        json.dump(data, outfile, ensure_ascii=False)
+    return None
+
+
+# write_dict_to_json(create_dict(file))
+
+
+def write_dict_to_xlsx(dict):
+    df = pd.DataFrame.from_dict(dict)
+    df.to_excel('files/expenses.xlsx')
+
+
+write_dict_to_xlsx(create_dict(file))
