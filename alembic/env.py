@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 
-from src.app.base import Base              # MYMOD
+from app.core.base import Base              # MYMOD
 
 load_dotenv('.env')                         # MYMOD
 # this is the Alembic Config object, which provides
