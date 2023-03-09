@@ -1,8 +1,8 @@
 from sqlalchemy import select
 
 from app.core.db import AsyncSessionLocal
-from app.core.models import Contract
 from app.core.schemas.contract import ContractCreate
+from app.core.models import Contract
 
 
 async def create_contract(

@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 from openpyxl import load_workbook
-# from src.core.crud.expense import create_expense
+from app.core.schemas.contract import ContractCreate
 
 CWD = os.getcwd()
 
@@ -20,11 +20,6 @@ ca = set()
 contract = set()
 
 
-async def get_ca_by_name(name):
-    
-    return
-
-
 async def create_new_expense(filename):
     """Загружаем файл.
     """
@@ -37,7 +32,7 @@ async def create_new_expense(filename):
         # current_month = current_date.strftime('%m')
         _, current_ca, current_contract, *_ = row[DATA].split('\n')
         current_sum = round(float(row[AMOUNT]), 2)
-        
+
 
         expense = {
             'period': current_date,
@@ -45,6 +40,4 @@ async def create_new_expense(filename):
             'contract_id': current_contract,
             'amount': current_sum,
         }
-        new_expense = await create_expense(expense)
-    
     return None
