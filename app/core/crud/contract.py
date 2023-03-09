@@ -2,9 +2,12 @@ from sqlalchemy import select
 
 from app.core.db import AsyncSessionLocal
 from app.core.models import Contract
+from app.core.schemas.contract import ContractCreate
 
 
-async def create_contract(new_contract):
+async def create_contract(
+    new_contract: ContractCreate
+) -> Contract:
     new_contract_data = new_contract.dict()
     db_contract = Contract(**new_contract_data)
     async with AsyncSessionLocal() as session:
