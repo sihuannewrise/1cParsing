@@ -27,14 +27,14 @@ class Expenses(dict):
         return value
 
 
-def create_dict(filename):
+def create_dict(filename) -> dict:
     """Загружаем файл.
     """
     wb = load_workbook(filename=filename)
     ws = wb.active
     expenses = Expenses()
 
-    for row in ws.iter_rows(min_row=2, max_row=2, values_only=True):
+    for row in ws.iter_rows(min_row=2, max_row=4, values_only=True):
         # current_date = datetime.strptime(row[PERIOD], '%d.%m.%Y').date()
         # year = current_date.strftime('%Y')
         # current_month = int(current_date.strftime('%m'))
@@ -62,7 +62,8 @@ def create_dict(filename):
     return expenses
 
 
-# print(len(create_dict(file)))
+# exp = create_dict(file)
+# print(type(exp), len(exp), exp)
 
 
 def write_dict_to_json(data):
@@ -74,19 +75,16 @@ def write_dict_to_json(data):
 # write_dict_to_json(create_dict(file))
 
 
-def write_dict_to_xlsx(dict):
+def write_dict_to_xlsx(data):
     wb = Workbook()
     ws = wb.active
-    start_col = 1
-    start_row = 1
-    for ca, val in dict.items:
-        current_col = start_col
-        current_row = start_row
-        ws.cell(column=current_col, row=current_row).value = ca
-        current_col += 1
-        for key, amount in val.items:
-            ws.cell(column=current_col, row=current_row).value = key
-            ws.cell(column=current_col, row=current_row).value = amount
+    c_col, c_row = 1, 2
+    for ca in data:
+        for contract in data[ca]:
+            ws.cell(column=c_col, row=c_row).value = ca
+            ws.cell(column=c_col + 1, row=c_row).value = contract
+            ws.cell(column=c_col + 2, row=c_row).value = data[ca][contract]
+            c_row += 1
     wb.save(filename=xlsx_file)
 
 
