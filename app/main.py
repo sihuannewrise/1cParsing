@@ -1,21 +1,22 @@
 import os
+import re
 import json
-import pandas as pd
 
-# from datetime import datetime
-from openpyxl import load_workbook
+from openpyxl import load_workbook, Workbook
 
 CWD = os.getcwd()
 
-SOURCE_DIR = './files/in/'
-DESTIN_DIR = './files/out/'
+vat_search = r'Без налога (НДС)'
+ip_search = r'ИП'
+
+SOURCE_DIR = 'app/files/in/'
+DESTIN_DIR = 'app/files/'
 
 SOURCE_FILE_NAME = 'knh51-2022.xlsx'
-
-DESTIN_FILE_SUFFIX = ' - out'
-DESTIN_SHEET_NAME = 'proc'
+DESTIN_FILE_NAME = 'expenses.xlsx'
 
 file = SOURCE_DIR + SOURCE_FILE_NAME
+xlsx_file = DESTIN_DIR + DESTIN_FILE_NAME
 
 PERIOD, VAT, DATA, four, five, six, AMOUNT = range(7)
 
@@ -33,12 +34,17 @@ def create_dict(filename):
     ws = wb.active
     expenses = Expenses()
 
-    for row in ws.iter_rows(min_row=2, values_only=True):
+    for row in ws.iter_rows(min_row=2, max_row=2, values_only=True):
         # current_date = datetime.strptime(row[PERIOD], '%d.%m.%Y').date()
         # year = current_date.strftime('%Y')
         # current_month = int(current_date.strftime('%m'))
         _, current_ca, current_contract, *_ = row[DATA].split('\n')
-        current_sum = int(row[AMOUNT])
+        zero_vat = re.search(vat_search, row[VAT])
+        ip_ca = re.search(ip_search, current_ca)
+        if zero_vat or ip_ca:
+            current_sum = int(row[AMOUNT])
+        else:
+            current_sum = int(row[AMOUNT]/1.2)
 
         # с разбивкой по годам
         if current_contract not in expenses[current_ca]:
@@ -56,8 +62,11 @@ def create_dict(filename):
     return expenses
 
 
+# print(len(create_dict(file)))
+
+
 def write_dict_to_json(data):
-    with open("files/expenses.json", "w", encoding='UTF-8') as outfile:
+    with open("app/files/expenses.json", "w", encoding='UTF-8') as outfile:
         json.dump(data, outfile, ensure_ascii=False)
     return None
 
@@ -66,8 +75,19 @@ def write_dict_to_json(data):
 
 
 def write_dict_to_xlsx(dict):
-    df = pd.DataFrame.from_dict(dict)
-    df.to_excel('files/expenses.xlsx')
+    wb = Workbook()
+    ws = wb.active
+    start_col = 1
+    start_row = 1
+    for ca, val in dict.items:
+        current_col = start_col
+        current_row = start_row
+        ws.cell(column=current_col, row=current_row).value = ca
+        current_col += 1
+        for key, amount in val.items:
+            ws.cell(column=current_col, row=current_row).value = key
+            ws.cell(column=current_col, row=current_row).value = amount
+    wb.save(filename=xlsx_file)
 
 
 write_dict_to_xlsx(create_dict(file))
