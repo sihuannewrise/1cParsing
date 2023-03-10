@@ -17,7 +17,7 @@ DESTIN_FILE_NAME = 'expenses.xlsx'
 
 file = SOURCE_DIR + SOURCE_FILE_NAME
 xlsx_file = DESTIN_DIR + DESTIN_FILE_NAME
-
+HEADER = ['№ п/п', 'Контрагент', 'Группа', 'Договор', 'Сумма за год']
 PERIOD, VAT, DATA, four, five, six, AMOUNT = range(7)
 
 
@@ -34,7 +34,7 @@ def create_dict(filename) -> dict:
     ws = wb.active
     expenses = Expenses()
 
-    for row in ws.iter_rows(min_row=2, max_row=4, values_only=True):
+    for row in ws.iter_rows(min_row=2, values_only=True):
         # current_date = datetime.strptime(row[PERIOD], '%d.%m.%Y').date()
         # year = current_date.strftime('%Y')
         # current_month = int(current_date.strftime('%m'))
@@ -78,12 +78,23 @@ def write_dict_to_json(data):
 def write_dict_to_xlsx(data):
     wb = Workbook()
     ws = wb.active
+
+    ws.column_dimensions['A'].width = 6
+    ws.column_dimensions['B'].width = 44
+    ws.column_dimensions['D'].width = 44
+    ws.column_dimensions['E'].width = 12
+    ws.freeze_panes = 'B2'
+    ws.append(HEADER)
+
     c_col, c_row = 1, 2
+    line_delta = c_row - 1
     for ca in data:
         for contract in data[ca]:
-            ws.cell(column=c_col, row=c_row).value = ca
-            ws.cell(column=c_col + 1, row=c_row).value = contract
-            ws.cell(column=c_col + 2, row=c_row).value = data[ca][contract]
+            ws.cell(column=c_col, row=c_row).value = c_row - line_delta
+            ws.cell(column=c_col + 1, row=c_row).value = ca
+
+            ws.cell(column=c_col + 3, row=c_row).value = contract
+            ws.cell(column=c_col + 4, row=c_row).value = data[ca][contract]
             c_row += 1
     wb.save(filename=xlsx_file)
 
