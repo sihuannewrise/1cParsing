@@ -6,8 +6,9 @@ from openpyxl import load_workbook, Workbook
 
 CWD = os.getcwd()
 
-vat_search = r'Без налога (НДС)'
+vat_search = r'Без н'
 ip_search = r'ИП'
+zero_vat_ca = set()
 
 SOURCE_DIR = 'app/files/in/'
 DESTIN_DIR = 'app/files/'
@@ -43,6 +44,7 @@ def create_dict(filename) -> dict:
         ip_ca = re.search(ip_search, current_ca)
         if zero_vat or ip_ca:
             current_sum = int(row[AMOUNT])
+            zero_vat_ca.add(current_ca)
         else:
             current_sum = int(row[AMOUNT]/1.2)
 
@@ -59,6 +61,7 @@ def create_dict(filename) -> dict:
         # else:
         #     expenses[current_ca][current_contract][current_month] += round(
         #         current_sum/1.2, 2)
+    print(zero_vat_ca)
     return expenses
 
 
@@ -92,7 +95,6 @@ def write_dict_to_xlsx(data):
         for contract in data[ca]:
             ws.cell(column=c_col, row=c_row).value = c_row - line_delta
             ws.cell(column=c_col + 1, row=c_row).value = ca
-
             ws.cell(column=c_col + 3, row=c_row).value = contract
             ws.cell(column=c_col + 4, row=c_row).value = data[ca][contract]
             c_row += 1
